@@ -1,8 +1,7 @@
-import requests
-from convers import dec_to_base, convert_base
 import etherscan
 from sql_api import SQLite
 from decimal import Decimal
+from convers import dec_to_base, convert_base
 
 
 class WorkApiEtherscan():
@@ -19,16 +18,13 @@ class WorkApiEtherscan():
 
     #insert information in sql
     def etherscan_api(self):
-        url = f"https://api.etherscan.io/api?module=proxy&action=eth_blockNumber&apikey={self.api_key}"
-        response = requests.request("GET", url)
-        json_response = response.json()
-        # Conversion in 16 to 10
-        blockNumber = convert_base(json_response['result'])
+        # GET LAST BLOCK
+        blockNumber = self.es.get_block_number()
         # last 100 block
-        for x in range(int(blockNumber), int(blockNumber)-100, -1):
-            block = self.es.get_block_by_number(block_number=x)
+        for block_number in range(blockNumber, blockNumber-100, -1):
+            block = self.es.get_block_by_number(block_number = block_number)
             # Conversion in 10 to 16
-            getBlockByNumbe = dec_to_base(int(x), 16)
+            getBlockByNumbe = dec_to_base(int(block_number), 16)
             tag = f"0x{getBlockByNumbe}".lower()
             # iter from tranzaction
             for from_rartzaktion in block['transactions']:
